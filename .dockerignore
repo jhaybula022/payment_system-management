@@ -1,0 +1,24 @@
+# Git
+.git
+.gitignore
+
+# Local env files
+.env
+.env.local
+
+# Docker
+docker-compose.yml
+.dockerignore
+nginx.conf
+supervisord.conf
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode
+.kiro
+*.code-workspace
+
+# Large uploaded files (mount as volume in production)
+backend/uploads/payment_proofs/*
+!backend/uploads/payment_proofs/.htaccess

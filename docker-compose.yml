@@ -1,0 +1,60 @@
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: payment_system_web
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: "db"
+      DB_PORT: "3306"
+      DB_DATABASE: "bestlink_student_system"
+      DB_USER: "root"
+      DB_PASS: "root"
+      HELLOMONEY_MODE: "${HELLOMONEY_MODE:-demo}"
+      PAYMONGO_TEST_SECRET_KEY: "${PAYMONGO_TEST_SECRET_KEY:-}"
+      PAYMONGO_TEST_PUBLIC_KEY: "${PAYMONGO_TEST_PUBLIC_KEY:-}"
+      PAYMONGO_LIVE_SECRET_KEY: "${PAYMONGO_LIVE_SECRET_KEY:-}"
+      PAYMONGO_LIVE_PUBLIC_KEY: "${PAYMONGO_LIVE_PUBLIC_KEY:-}"
+      PAYMONGO_WEBHOOK_SECRET: "${PAYMONGO_WEBHOOK_SECRET:-}"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./:/var/www/html
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: payment_system_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "bestlink_student_system"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: payment_system_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - "8081:80"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
